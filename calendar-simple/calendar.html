@@ -1,14 +1,134 @@
-<!--
-To change this template, choose Tools | Templates
-and open the template in the editor.
--->
 <!DOCTYPE html>
 <html>
     <head>
         <title></title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style type ="text/css"> 
+            table {
+                border-collapse: collapse;
+            }
+
+            table a {
+                cursor: pointer;
+            }
+
+            td, th {
+                border: 1px solid black;
+                width:40px;
+                height:40px;
+                text-align: center;
+            }
+
+            th {
+                font-weight: bold;
+                background-color: #E6E6E6;
+            }
+        </style>
     </head>
     <body>
-        <div>TODO write content</div>
+        <div id ="nav-menu"></div>
+        <div id ="wrapper"></div>   
+        <script type ="text/javascript">
+            function getDay(date) {
+                var day = date.getDay();
+                if (!day) day = 7;
+                return day - 1;
+            }
+            
+            function Calendar(options, wrapper) {
+                
+                var self = this;
+                
+                var date = null;
+                
+                init();
+                
+                function init() {
+                    parseDate(options);                    
+                    drawCalendar();
+                }
+                
+                function parseDate(value) {
+                    if (value instanceof Date) {
+                        date = value;
+                        date.setDate(1);                        
+                    }
+                    else {
+                        date = new Date(options.year, options.month-1);
+                    }
+                }
+                
+                function drawCalendar() {
+                   
+                    var months = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь","ноябрь" ,"декабрь"]
+                    
+                    var table = '<table><tr><td colspan = "2"><a onclick = calendar.prevMonth()><</a></td><td colspan = "3">' + months[date.getMonth()] + ' ' + (date.getYear() + 1900) + '</td><td colspan = "2"><a onclick = calendar.nextMonth()>></a></td></tr><tr><th>пн</th><th>вт</th><th>ср</th><th>чт</th><th>пт</th><th>сб</th><th>вс</th></tr><tr>';
+                    var yearBefore, yearAfter;
+                    yearAfter = yearBefore = date.getFullYear();
+                    // заполнить первый ряд от понедельника
+                    // и до дня, с которого начинается месяц
+                    // * * * | 1  2  3  4
+                    for (var i=0; i<getDay(date); i++) {
+                        table += '<td></td>';
+                    }
+                    var month = date.getMonth();              
+                    // ячейки календаря с датами
+                    while(date.getMonth() == month) {
+                        table += '<td>'+date.getDate()+'</td>';
+                        if (getDay(date) % 7 == 6) { // вс, последний день - перевод строки
+                            table += '</tr><tr>';
+                        }
+                        date.setDate(date.getDate()+1);
+                    }
+                    // добить таблицу пустыми ячейками, если нужно
+                    if (getDay(date) != 0) {
+                        for (var i=getDay(date); i<7; i++) {
+                            table += '<td></td>';
+                        }
+                    }                    
+                    // закрыть таблицу
+                    table += '</tr></table>';
+
+                    // только одно присваивание innerHTML
+                    wrapper.innerHTML = table;
+                    
+                    yearAfter = date.getFullYear();
+                    
+                    if (yearAfter != yearBefore) {
+                        date.setFullYear(yearBefore, month, 1);
+                    }
+                    else {
+                        date.setMonth(month, 1);
+                    }
+                }
+                
+                this.prevMonth = function() {                    
+                    var month = date.getMonth();                    
+                    if (month == 0)  {                        
+                        date.setFullYear(date.getFullYear() - 1, 11, 1);                        
+                    }                            
+                    else {                                
+                        date.setMonth(date.getMonth() - 1, 1);                        
+                    }
+                    drawCalendar();                    
+                }
+                
+                this.nextMonth = function() {
+                    var month = date.getMonth();                    
+                    if (month == 11)  {                        
+                        date.setFullYear(date.getFullYear() + 1, 0, 1);                        
+                    }                            
+                    else {                                
+                        date.setMonth(date.getMonth() + 1, 1);                        
+                    }
+                    drawCalendar();  
+                }
+            }
+            
+            var wrapper = document.getElementById("wrapper");
+                        
+            //var calendar = new Calendar({year: 2012, month: 2}, wrapper);
+            var calendar = new Calendar(new Date(), wrapper);            
+        </script>
     </body>
 </html>
