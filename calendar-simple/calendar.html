@@ -25,21 +25,16 @@
             }
         </style>
     </head>
-    <body>
-        <div id ="nav-menu"></div>
+    <body>        
         <div id ="wrapper"></div>   
         <script type ="text/javascript">
-            function getDay(date) {
-                var day = date.getDay();
-                if (!day) day = 7;
-                return day - 1;
-            }
-            
             function Calendar(options, wrapper) {
                 
                 var self = this;
                 
                 var date = null;
+                
+                var months = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь","ноябрь" ,"декабрь"];
                 
                 init();
                 
@@ -58,20 +53,29 @@
                     }
                 }
                 
+                function getDay(date) {
+                    var day = date.getDay();
+                    if (!day) day = 7;
+                    return day - 1;
+                }
+                
                 function drawCalendar() {
-                   
-                    var months = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь","ноябрь" ,"декабрь"]
                     
                     var table = '<table><tr><td colspan = "2"><a onclick = calendar.prevMonth()><</a></td><td colspan = "3">' + months[date.getMonth()] + ' ' + (date.getYear() + 1900) + '</td><td colspan = "2"><a onclick = calendar.nextMonth()>></a></td></tr><tr><th>пн</th><th>вт</th><th>ср</th><th>чт</th><th>пт</th><th>сб</th><th>вс</th></tr><tr>';
+                    
                     var yearBefore, yearAfter;
+                    
                     yearAfter = yearBefore = date.getFullYear();
+                    
                     // заполнить первый ряд от понедельника
                     // и до дня, с которого начинается месяц
                     // * * * | 1  2  3  4
                     for (var i=0; i<getDay(date); i++) {
                         table += '<td></td>';
                     }
-                    var month = date.getMonth();              
+                    
+                    var month = date.getMonth(); 
+                    
                     // ячейки календаря с датами
                     while(date.getMonth() == month) {
                         table += '<td>'+date.getDate()+'</td>';
@@ -80,6 +84,7 @@
                         }
                         date.setDate(date.getDate()+1);
                     }
+                    
                     // добить таблицу пустыми ячейками, если нужно
                     if (getDay(date) != 0) {
                         for (var i=getDay(date); i<7; i++) {
@@ -93,10 +98,12 @@
                     wrapper.innerHTML = table;
                     
                     yearAfter = date.getFullYear();
-                    
+                    //т.к. пока рисовали календарь - перешли в другой месяц, откатим дату в наш месяц
+                    //если перешли в другой год
                     if (yearAfter != yearBefore) {
                         date.setFullYear(yearBefore, month, 1);
                     }
+                    //если просто поменяли месяц без перехода в след год
                     else {
                         date.setMonth(month, 1);
                     }
