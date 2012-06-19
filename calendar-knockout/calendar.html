@@ -1,14 +1,153 @@
-<!--
-To change this template, choose Tools | Templates
-and open the template in the editor.
--->
 <!DOCTYPE html>
 <html>
     <head>
         <title></title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style type ="text/css"> 
+            table {
+                border-collapse: collapse;
+            }
+
+            table a {
+                cursor: pointer;
+            }
+
+            td, th {
+                border: 1px solid black;
+                width:40px;
+                height:40px;
+                text-align: center;
+            }
+
+            th {
+                font-weight: bold;
+                background-color: #E6E6E6;
+            }
+        </style>
+        <script src ="knockout-2.1.0.js" type="text/javascript"></script>
     </head>
-    <body>
-        <div>TODO write content</div>
+    <body>        
+        <table>
+            <thead>
+                <tr><td colspan = "2"><a data-bind="click: prevMonth"><</a></td><td colspan = "3" data-bind="text: date"></td><td colspan = "2"><a data-bind="click: nextMonth">></a></td></tr>
+                <tr><th>пн</th><th>вт</th><th>ср</th><th>чт</th><th>пт</th><th>сб</th><th>вс</th></tr>
+            </thead>
+            <tbody data-bind="html: calendar">                
+            </tbody>
+        </table>
+        <script type="text/javascript">
+            function CalendarViewModel(options) {
+                var self     = this;
+                
+                var calendar = null;
+                
+                var months   = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь","ноябрь" ,"декабрь"];
+                
+                var date     = null;
+                
+                init();
+                
+                function init() {
+                    parseDate(options);
+                    createCalendar();
+                }
+                
+                function parseDate(value) {
+                    if (value instanceof Date) {
+                        date = value;
+                        date.setDate(1);                        
+                    }
+                    else {
+                        date = new Date(options.year, options.month-1);
+                    }
+                }
+                
+                function getDay(date) {
+                    var day = date.getDay();
+                    if (!day) day = 7;
+                    return day - 1;
+                }
+                
+                function createCalendar() {
+                    
+                    calendar = '<tr>';
+                    
+                    var yearBefore, yearAfter;
+                    
+                    yearAfter = yearBefore = date.getFullYear();
+                    
+                    // заполнить первый ряд от понедельника
+                    // и до дня, с которого начинается месяц
+                    // * * * | 1  2  3  4
+                    for (var i=0; i<getDay(date); i++) {
+                        calendar += '<td></td>';
+                    }
+                    
+                    var month = date.getMonth();
+                    
+                    // ячейки календаря с датами
+                    while(date.getMonth() == month) {
+                        calendar += '<td>'+date.getDate()+'</td>';
+                        if (getDay(date) % 7 == 6) { // вс, последний день - перевод строки
+                            calendar += '</tr><tr>';
+                        }
+                        date.setDate(date.getDate()+1);
+                    }
+                    
+                    // добить таблицу пустыми ячейками, если нужно
+                    if (getDay(date) != 0) {
+                        for (var i=getDay(date); i<7; i++) {
+                            calendar += '<td></td>';
+                        }
+                    }
+                    // закрыть таблицу
+                    calendar += '</tr>';
+                   
+                    yearAfter = date.getFullYear();
+                    //т.к. пока рисовали календарь - перешли в другой месяц, откатим дату в наш месяц
+                    //если перешли в другой год
+                    if (yearAfter != yearBefore) {
+                        date.setFullYear(yearBefore, month, 1);
+                    }
+                    //если просто поменяли месяц без перехода в след год
+                    else {
+                        date.setMonth(month, 1);
+                    }                    
+                }
+                
+                self.prevMonth = function() {
+                    var month = date.getMonth();                    
+                    if (month == 0)  {                        
+                        date.setFullYear(date.getFullYear() - 1, 11, 1);                        
+                    }                            
+                    else {                                
+                        date.setMonth(date.getMonth() - 1, 1);                        
+                    }
+                    createCalendar();
+                    self.calendar(calendar);
+                    self.date(months[date.getMonth()] + ' ' + (date.getYear() + 1900));
+                }
+                
+                self.nextMonth = function() {
+                    var month = date.getMonth();                    
+                    if (month == 11)  {                        
+                        date.setFullYear(date.getFullYear() + 1, 0, 1);                        
+                    }                            
+                    else {                                
+                        date.setMonth(date.getMonth() + 1, 1);                        
+                    }
+                    createCalendar();
+                    self.calendar(calendar);
+                    self.date(months[date.getMonth()] + ' ' + (date.getYear() + 1900));
+                }
+     
+                self.calendar = ko.observable(calendar);
+                    
+                self.date = ko.observable(months[date.getMonth()] + ' ' + (date.getYear() + 1900));                
+                
+            }
+            
+            ko.applyBindings(new CalendarViewModel(new Date));
+        </script>
     </body>
 </html>

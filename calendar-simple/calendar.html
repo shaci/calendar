@@ -25,10 +25,17 @@
             }
         </style>
     </head>
-    <body>        
-        <div id ="wrapper"></div>   
+    <body>
+        <table>
+            <thead>
+                <tr><td colspan = "2"><a onclick ="calendar.prevMonth()"><</a></td><td colspan = "3" id="menu"></td><td colspan = "2"><a onclick ="calendar.nextMonth()">></a></td></tr>
+                <tr><th>пн</th><th>вт</th><th>ср</th><th>чт</th><th>пт</th><th>сб</th><th>вс</th></tr>
+            </thead>
+            <tbody id ="wrapper">
+            </tbody>
+        </table>
         <script type ="text/javascript">
-            function Calendar(options, wrapper) {
+            function Calendar(options, wrapper, menu) {
                 
                 var self = this;
                 
@@ -61,26 +68,28 @@
                 
                 function drawCalendar() {
                     
-                    var table = '<table><tr><td colspan = "2"><a onclick = calendar.prevMonth()><</a></td><td colspan = "3">' + months[date.getMonth()] + ' ' + (date.getYear() + 1900) + '</td><td colspan = "2"><a onclick = calendar.nextMonth()>></a></td></tr><tr><th>пн</th><th>вт</th><th>ср</th><th>чт</th><th>пт</th><th>сб</th><th>вс</th></tr><tr>';
+                    var calendar = '<tr>';
                     
                     var yearBefore, yearAfter;
                     
                     yearAfter = yearBefore = date.getFullYear();
                     
+                    var menuDate = months[date.getMonth()] + ' ' + (date.getYear() + 1900);
+                    
                     // заполнить первый ряд от понедельника
                     // и до дня, с которого начинается месяц
                     // * * * | 1  2  3  4
                     for (var i=0; i<getDay(date); i++) {
-                        table += '<td></td>';
+                        calendar += '<td></td>';
                     }
                     
                     var month = date.getMonth(); 
                     
                     // ячейки календаря с датами
                     while(date.getMonth() == month) {
-                        table += '<td>'+date.getDate()+'</td>';
+                        calendar += '<td>'+date.getDate()+'</td>';
                         if (getDay(date) % 7 == 6) { // вс, последний день - перевод строки
-                            table += '</tr><tr>';
+                            calendar += '</tr><tr>';
                         }
                         date.setDate(date.getDate()+1);
                     }
@@ -88,14 +97,11 @@
                     // добить таблицу пустыми ячейками, если нужно
                     if (getDay(date) != 0) {
                         for (var i=getDay(date); i<7; i++) {
-                            table += '<td></td>';
+                            calendar += '<td></td>';
                         }
                     }                    
                     // закрыть таблицу
-                    table += '</tr></table>';
-
-                    // только одно присваивание innerHTML
-                    wrapper.innerHTML = table;
+                    calendar += '</tr>';                    
                     
                     yearAfter = date.getFullYear();
                     //т.к. пока рисовали календарь - перешли в другой месяц, откатим дату в наш месяц
@@ -107,6 +113,11 @@
                     else {
                         date.setMonth(month, 1);
                     }
+                    
+                    // только одно присваивание innerHTML
+                    wrapper.innerHTML = calendar;
+                    
+                    menu.innerHTML = menuDate;
                 }
                 
                 this.prevMonth = function() {                    
@@ -133,9 +144,11 @@
             }
             
             var wrapper = document.getElementById("wrapper");
-                        
-            //var calendar = new Calendar({year: 2012, month: 2}, wrapper);
-            var calendar = new Calendar(new Date(), wrapper);            
+            
+            var menu = document.getElementById("menu");
+            
+            //var calendar = new Calendar({year: 2012, month: 2}, wrapper, menu);
+            var calendar = new Calendar(new Date(), wrapper, menu);            
         </script>
     </body>
 </html>
